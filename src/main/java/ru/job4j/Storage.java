@@ -24,7 +24,7 @@ public class Storage {
     /**
      * Storage for Topic mode. String - theme name, Queue - storage of messages.
      */
-    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>();
 
     public void size() {
         if (queue.size() > 0) {
@@ -37,14 +37,14 @@ public class Storage {
 
     private void queueModeQueueFabric(String theme) {
         newName = generateName(theme);
-        ConcurrentLinkedQueue<String> newName = new ConcurrentLinkedQueue<>();
+        var newName = new ConcurrentLinkedQueue<String>();
         queue.put(theme, newName);
         System.out.println("queue mode: Created new theme for " + theme);
     }
 
     private void topicModeQueueFabric(String theme) {
         newName = generateName(theme);
-        ConcurrentLinkedQueue<String> newName = new ConcurrentLinkedQueue<>();
+        var newName = new ConcurrentLinkedQueue<String>();
         topic.put(theme, newName);
         System.out.println("topic mode: Created new theme - " + theme);
     }
@@ -54,7 +54,7 @@ public class Storage {
     }
 
     public void addMessage(String mode, String theme, String message) {
-        if (mode.equals("queue")) {
+        if ("queue".equals(mode)) {
             if (queue.containsKey(theme)) {
                 queue.get(theme).offer(message);
                 System.out.println("Message added to storage with theme ".concat(theme));
@@ -64,7 +64,7 @@ public class Storage {
                 System.out.println("Message to queue added");
             }
         }
-        if (mode.equals("topic")) {
+        if ("topic".equals(mode)) {
             addTopicMessage(theme, message);
         }
     }
@@ -81,7 +81,7 @@ public class Storage {
     }
 
     public String getMessage(String mode, String theme) {
-        var message = "";
+        String message = "";
 
         if ("queue".equals(mode)) {
             if (queue.containsKey(theme)) {
@@ -90,7 +90,7 @@ public class Storage {
                 System.out.println("There are no this theme, create it");
             }
         } else if ("topic".equals(mode)) {
-//            message = topic.computeIfPresent(theme, (key, val) -> val.poll());
+//            message = topic.computeIfPresent(theme, (key, val) -> message = val.poll());
             if (topic.containsKey(theme)) {
                     message = topic.get(theme).poll();
             } else {
