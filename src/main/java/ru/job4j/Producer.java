@@ -7,24 +7,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Producer {
-    String mode;
-    JsonMessage jsonMessage = new JsonMessage();
+    private final String mode;
+    private final JsonParser jsonParser;
     private final int size = Runtime.getRuntime().availableProcessors();
-    ExecutorService pool = Executors.newFixedThreadPool(size + 1);
+    private final ExecutorService pool = Executors.newFixedThreadPool(size + 1);
 
-    public Producer(String mode) {
+    public Producer(String mode, JsonParser jsonParser) {
         this.mode = mode;
+        this.jsonParser = jsonParser;
     }
 
     public void producer(String theme) {
         for (int i = 0; i < 6; i++) {
             pool.execute(
                     () -> {
-                        String message = jsonMessage.generateJsonMessage(
-                                mode,
-                                theme,
-                                "temp 20 C");
-                        sendMessage(message, "POST /", mode.concat("/").concat(theme));
+                        var header = jsonParser.getJsonHeader(
+                                "POST", mode.concat("/").concat(theme), "HTTP/1.1");
+                        var message = jsonParser.generateJson(mode, theme, "temp 20 C");
+                        sendMessage(header, message);
                     });
         }
     }
@@ -33,12 +33,12 @@ public class Producer {
         pool.shutdown();
     }
 
-    public void sendMessage(String message, String method, String path) {
-        try (Socket socket = new Socket("localhost", 9000);
-             PrintWriter writer = new PrintWriter(socket.getOutputStream())) {
-            String request = method.concat(path).concat(System.lineSeparator()).concat(message);
-            writer.println(request);
-            writer.println();
+    public void sendMessage(String header, String message) {
+        try (var socket = new Socket("localhost", 9000);
+             var writer = new PrintWriter(socket.getOutputStream())) {
+            writer.println(header);
+            writer.println(message);
+            writer.println("END");
             writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +46,8 @@ public class Producer {
     }
 
     public static void main(String[] args) {
-        Producer producer = new Producer("topic");
+        var jsonParser = new JsonParser();
+        var producer = new Producer("topic", jsonParser);
         producer.producer("weather");
         producer.close();
     }

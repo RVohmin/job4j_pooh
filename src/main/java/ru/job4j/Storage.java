@@ -81,22 +81,22 @@ public class Storage {
     }
 
     public String getMessage(String mode, String theme) {
-        String message = "There are no messages";
+        var message = "";
 
         if (mode.equals("queue")) {
             if (queue.containsKey(theme)) {
-                message = queue.get(theme).poll();
+                    message = queue.get(theme).poll();
             } else {
                 System.out.println("There are no this theme, create it");
             }
         } else if (mode.equals("topic")) {
             if (topic.containsKey(theme)) {
-                message = topic.get(theme).poll();
+                    message = topic.get(theme).poll();
             } else {
                 System.out.println("There are no this theme, create it");
             }
         }
-        return message;
+        return message != null ? message : "There are no messages";
     }
 
 }

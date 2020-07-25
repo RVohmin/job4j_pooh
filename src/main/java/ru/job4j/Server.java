@@ -1,11 +1,7 @@
 package ru.job4j;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,48 +15,35 @@ import java.util.concurrent.Executors;
  */
 public class Server {
     private final int size = Runtime.getRuntime().availableProcessors();
-    ExecutorService pool = Executors.newFixedThreadPool(size + 1);
-    Storage storage = new Storage();
-    String mode;
-    String theme;
+    private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final Storage storage = new Storage();
+    private final JsonParser jsonParser;
 
-    public Server(int port) {
-        try (ServerSocket server = new ServerSocket(port)) {
+    public Server(int port, JsonParser jsonParser) {
+        this.jsonParser = jsonParser;
+        try (var server = new ServerSocket(port)) {
             System.out.println("Server started");
             while (!server.isClosed()) {
-                Socket socket = server.accept();
+                var socket = server.accept();
                 pool.execute(
                         () -> {
-                            try (
-                                    BufferedReader in = new BufferedReader(
-                                            new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-                                    PrintWriter writer = new PrintWriter(socket.getOutputStream())) {
-                                String str;
+                            try (var in = new BufferedReader(
+                                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                                 var writer = new PrintWriter(socket.getOutputStream())) {
                                 writer.println("HTTP/1.1 200 OK");
                                 writer.println();
                                 writer.flush();
-                                StringBuilder stringBuilder = new StringBuilder(System.lineSeparator());
-                                String method = "";
-                                String message;
-                                while (!(str = in.readLine()).isEmpty()) {
-                                    if (str.contains("POST")) {
-                                        method = "POST";
-                                        mode = getModeFromPath(str);
-                                        theme = getThemeFromPath(str);
-                                    } else if (str.contains("GET")) {
-                                        method = "GET";
-                                        mode = getModeFromPath(str);
-                                        theme = getThemeFromPath(str);
-                                    }
-                                    stringBuilder.append(str);
+                                var inLine = "";
+                                var method = "";
+                                var json = "";
+                                while (!(inLine = in.readLine()).isBlank()) {
+                                    json = inLine;
+                                    method = jsonParser.getMethod(json);
                                 }
-                                if (method.equals("POST")) {
-                                    storage.addMessage(mode, theme, stringBuilder.toString());
-                                } else if (method.equals("GET")) {
-                                    message = storage.getMessage(mode, theme);
-                                    writer.println(message);
-                                    writer.flush();
+                                while (!(inLine = in.readLine()).equals("END")) {
+                                    json = inLine;
                                 }
+                                process(method, json, writer);
                             } catch (IOException e) {
                                 System.out.println("Error");
                                 e.printStackTrace();
@@ -74,15 +57,20 @@ public class Server {
         }
     }
 
-    private String getModeFromPath(String path) {
-        return path.substring(6, path.lastIndexOf("/"));
-    }
-
-    private String getThemeFromPath(String path) {
-        return path.substring(path.lastIndexOf("/") + 1);
+    private void process(String method, String json, PrintWriter writer) {
+        var mode = jsonParser.getMode(json);
+        var theme = jsonParser.getTheme(json);
+        if (method.equals("POST")) {
+            storage.addMessage(mode, theme, json);
+        } else if (method.equals("GET")) {
+            writer.println(storage.getMessage(mode, theme));
+            writer.println("END");
+            writer.flush();
+        }
     }
 
     public static void main(String[] args) {
-        Server server = new Server(9000);
+        JsonParser jsonParser = new JsonParser();
+        Server server = new Server(9000, jsonParser);
     }
 }

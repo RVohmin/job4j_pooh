@@ -13,22 +13,25 @@ import java.util.concurrent.Executors;
  */
 public class Consumer {
     private final int size = Runtime.getRuntime().availableProcessors();
-    ExecutorService pool = Executors.newFixedThreadPool(size + 1);
-    String mode;
-    String theme;
+    private final ExecutorService pool = Executors.newFixedThreadPool(size + 1);
+    private final String mode;
+    private final String theme;
+    private final JsonParser jsonParser;
 
-    public Consumer(String mode, String theme) {
+    public Consumer(String mode, String theme, JsonParser jsonParser) {
         this.mode = mode;
         this.theme = theme;
+        this.jsonParser = jsonParser;
     }
 
-    public void consume(String theme) {
+    public void consume() {
         for (int i = 0; i < 6; i++) {
             pool.execute(
                     () -> {
-                        String request = "GET  /".concat(mode).concat("/").concat(theme);
-                        String message = sendMessage(request);
-                        System.out.println(message);
+                        var request = jsonParser.getJsonHeader(
+                                "GET", mode.concat("/").concat(theme), "HTTP/1.1");
+                        var json = jsonParser.generateJson(mode, theme, "message");
+                        System.out.println(sendMessage(request, json));
                     });
         }
     }
@@ -37,31 +40,31 @@ public class Consumer {
         pool.shutdown();
     }
 
-    public String sendMessage(String request) {
-        StringBuilder response = new StringBuilder();
-
-        try (Socket socket = new Socket("localhost", 9000);
-             PrintWriter out = new PrintWriter(socket.getOutputStream());
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+    public String sendMessage(String request, String json) {
+        var response = "";
+        try (var socket = new Socket("localhost", 9000);
+             var out = new PrintWriter(socket.getOutputStream());
+             var in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             out.println(request);
-            out.println();
+            out.println(json);
+            out.println("END");
             out.flush();
-            String string;
-            while (in.ready()) {
-                string = in.readLine();
+            var string = "";
+            while (!(string = in.readLine()).equals("END")) {
                 if (!string.contains("HTTP")) {
-                    response.append(string);
+                    response = string;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return response.toString();
+        return response;
     }
 
     public static void main(String[] args) {
-        Consumer consumer = new Consumer("topic", "weather");
-        consumer.consume("weather");
+        JsonParser jsonParser = new JsonParser();
+        var consumer = new Consumer("topic", "weather", jsonParser);
+        consumer.consume();
         consumer.close();
     }
 }
