@@ -14,15 +14,13 @@ import java.util.concurrent.Executors;
  * @since 21.07.2020
  */
 public class Server {
-    private final int size = Runtime.getRuntime().availableProcessors();
-    private final ExecutorService pool = Executors.newCachedThreadPool();
     private final Storage storage = new Storage();
     private final JsonParser jsonParser;
 
     public Server(int port, JsonParser jsonParser) {
         this.jsonParser = jsonParser;
         try (var server = new ServerSocket(port)) {
-            System.out.println("Server started");
+            ExecutorService pool = Executors.newCachedThreadPool();
             while (!server.isClosed()) {
                 var socket = server.accept();
                 pool.execute(
