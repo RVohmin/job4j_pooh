@@ -14,7 +14,7 @@ public class Storage {
     /**
      * Temporary string value, used in fabric methods.
      */
-    private String newName = "";
+    private String newName;
     private final AtomicInteger index = new AtomicInteger(0);
 
     /**
@@ -90,7 +90,7 @@ public class Storage {
                 System.out.println("There are no this theme, create it");
             }
         } else if ("topic".equals(mode)) {
-//            message = topic.computeIfPresent(theme, (key, val) -> message = val.poll());
+//            message = topic.computeIfPresent(theme, (key, val) -> val.poll());
             if (topic.containsKey(theme)) {
                     message = topic.get(theme).poll();
             } else {
