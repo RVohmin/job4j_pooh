@@ -14,7 +14,7 @@ public class Storage {
     /**
      * Temporary string value, used in fabric methods.
      */
-    private String newName;
+    private String newName = "";
     private final AtomicInteger index = new AtomicInteger(0);
 
     /**
@@ -28,10 +28,10 @@ public class Storage {
 
     public void size() {
         if (queue.size() > 0) {
-            System.out.println(queue.size() + " : " + queue.get("weather").size());
+            System.out.printf("Size of map: %d, size of queue: %d", queue.size(), queue.get("weather").size());
         }
         if (topic.size() > 0) {
-            System.out.println(topic.size() + " : " + topic.get("weather").size());
+            System.out.printf("Size of map: %d, size of queue: %d", topic.size(), topic.get("weather").size());
         }
     }
 
@@ -83,13 +83,14 @@ public class Storage {
     public String getMessage(String mode, String theme) {
         var message = "";
 
-        if (mode.equals("queue")) {
+        if ("queue".equals(mode)) {
             if (queue.containsKey(theme)) {
                     message = queue.get(theme).poll();
             } else {
                 System.out.println("There are no this theme, create it");
             }
-        } else if (mode.equals("topic")) {
+        } else if ("topic".equals(mode)) {
+//            message = topic.computeIfPresent(theme, (key, val) -> val.poll());
             if (topic.containsKey(theme)) {
                     message = topic.get(theme).poll();
             } else {

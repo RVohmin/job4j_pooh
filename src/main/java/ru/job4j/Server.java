@@ -43,7 +43,6 @@ public class Server {
                                 }
                                 process(method, json, writer);
                             } catch (IOException e) {
-                                System.out.println("Error");
                                 e.printStackTrace();
                             }
                             storage.size();
