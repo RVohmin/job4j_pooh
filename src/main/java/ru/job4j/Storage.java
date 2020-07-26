@@ -71,10 +71,9 @@ public class Storage {
 
     public String getMessage(String mode, String theme) {
         var message = "";
-        var noMessage = "There are no messages";
         var map = getStorage(mode);
         if (map.containsKey(theme)) {
-            message = map.get(theme).peek() != null ? map.get(theme).poll() : noMessage;
+            message = map.get(theme).size() != 0 ? map.get(theme).poll() : "There are no messages";
         } else {
             message = "There are no this theme, create it";
         }
