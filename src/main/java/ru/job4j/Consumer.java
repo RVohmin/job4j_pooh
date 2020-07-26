@@ -65,6 +65,13 @@ public class Consumer {
         JsonParser jsonParser = new JsonParser();
         var consumer = new Consumer("topic", "weather", jsonParser);
         consumer.consume();
+        var consumer1 = new Consumer("topic", "meet", jsonParser);
+        var consumer2 = new Consumer("topic", "hello", jsonParser);
+
+        consumer1.consume();
+        consumer2.consume();
         consumer.close();
+        consumer1.close();
+        consumer2.close();
     }
 }

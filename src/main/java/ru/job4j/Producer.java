@@ -49,6 +49,8 @@ public class Producer {
         var jsonParser = new JsonParser();
         var producer = new Producer("topic", jsonParser);
         producer.producer("weather");
+        producer.producer("meet");
+//        producer.producer("hello");
         producer.close();
     }
 }

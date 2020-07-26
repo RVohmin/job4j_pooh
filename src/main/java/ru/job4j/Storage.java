@@ -2,7 +2,6 @@ package ru.job4j;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * ru.job4j.test.storage
@@ -12,19 +11,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Storage {
     /**
-     * Temporary string value, used in fabric methods.
-     */
-    private String newName;
-    private final AtomicInteger index = new AtomicInteger(0);
-
-    /**
      * Storage for Queue mode. String - theme name, Queue - storage of messages.
      */
     ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
     /**
      * Storage for Topic mode. String - theme name, Queue - storage of messages.
      */
-    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>();
+    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<>();
 
     public void size() {
         if (queue.size() > 0) {
@@ -36,21 +29,13 @@ public class Storage {
     }
 
     private void queueModeQueueFabric(String theme) {
-        newName = generateName(theme);
-        var newName = new ConcurrentLinkedQueue<String>();
-        queue.put(theme, newName);
+        queue.put(theme, new ConcurrentLinkedQueue<>());
         System.out.println("queue mode: Created new theme for " + theme);
     }
 
     private void topicModeQueueFabric(String theme) {
-        newName = generateName(theme);
-        var newName = new ConcurrentLinkedQueue<String>();
-        topic.put(theme, newName);
+        topic.put(theme, new ConcurrentLinkedQueue<>());
         System.out.println("topic mode: Created new theme - " + theme);
-    }
-
-    private String generateName(String theme) {
-        return theme.concat(String.valueOf(index.incrementAndGet()));
     }
 
     public void addMessage(String mode, String theme, String message) {
@@ -80,24 +65,19 @@ public class Storage {
         }
     }
 
-    public String getMessage(String mode, String theme) {
-        String message = "";
-
-        if ("queue".equals(mode)) {
-            if (queue.containsKey(theme)) {
-                    message = queue.get(theme).poll();
-            } else {
-                System.out.println("There are no this theme, create it");
-            }
-        } else if ("topic".equals(mode)) {
-//            message = topic.computeIfPresent(theme, (key, val) -> val.poll());
-            if (topic.containsKey(theme)) {
-                    message = topic.get(theme).poll();
-            } else {
-                System.out.println("There are no this theme, create it");
-            }
-        }
-        return message != null ? message : "There are no messages";
+    private ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> getStorage(String mode) {
+        return "queue".equals(mode) ? queue : topic;
     }
 
+    public String getMessage(String mode, String theme) {
+        String message;
+        String noMessage = "There are no messages";
+        ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> map = getStorage(mode);
+        if (map.containsKey(theme)) {
+            message = map.get(theme).peek() != null ? map.get(theme).poll() : noMessage;
+        } else {
+            message = "There are no this theme, create it";
+        }
+        return message;
+    }
 }
