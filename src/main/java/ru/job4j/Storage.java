@@ -70,9 +70,9 @@ public class Storage {
     }
 
     public String getMessage(String mode, String theme) {
-        String message;
-        String noMessage = "There are no messages";
-        ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> map = getStorage(mode);
+        var message = "";
+        var noMessage = "There are no messages";
+        var map = getStorage(mode);
         if (map.containsKey(theme)) {
             message = map.get(theme).peek() != null ? map.get(theme).poll() : noMessage;
         } else {
