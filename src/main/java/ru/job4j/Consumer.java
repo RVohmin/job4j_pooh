@@ -64,10 +64,9 @@ public class Consumer {
     public static void main(String[] args) {
         JsonParser jsonParser = new JsonParser();
         var consumer = new Consumer("topic", "weather", jsonParser);
-        consumer.consume();
         var consumer1 = new Consumer("topic", "meet", jsonParser);
         var consumer2 = new Consumer("topic", "hello", jsonParser);
-
+        consumer.consume();
         consumer1.consume();
         consumer2.consume();
         consumer.close();

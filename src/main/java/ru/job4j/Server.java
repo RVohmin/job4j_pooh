@@ -45,7 +45,6 @@ public class Server {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            storage.size();
                         }
                 );
             }

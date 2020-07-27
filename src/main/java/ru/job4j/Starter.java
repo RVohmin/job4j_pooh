@@ -2,7 +2,7 @@ package ru.job4j;
 
 /**
  * ru.job4j
- *
+ * Test class for load testing
  * @author romanvohmin
  * @since 25.07.2020
  */
