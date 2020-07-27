@@ -28,23 +28,24 @@ GET /queue/weather
 
 #### Режим Topic.
 Отправитель посылает сообщение с указанием темы.
-Получатель читает первое сообщение и удаляет его из очереди. 
+Получатель читает первое сообщение и удаляет его из очереди.
 Если приходят несколько получателей, то они читают отдельные очереди.
 
-`POST /topic`
-`{`
-`  "topic" : "weather",`
-` "text" : "temperature +18 C"`
-`}`
+POST /topic
+
+```
+{
+  "topic" : "weather",
+  "text" : "temperature +18 C"
+}
+```
 
  
-`GET /topic/weather`
-
-`{`
-`  "topic" : "weather",`
-
-`  "text" : "temperature +18 C"`
-
-`}`
-
+GET /topic/weather
+```
+{
+  "topic" : "weather",
+  "text" : "temperature +18 C"
+}
+```
 В проекте использована библиотека json.org
