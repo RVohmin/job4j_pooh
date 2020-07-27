@@ -25,7 +25,7 @@ public class Consumer {
     }
 
     public void consume() {
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 25; i++) {
             pool.execute(
                     () -> {
                         var request = jsonParser.getJsonHeader(

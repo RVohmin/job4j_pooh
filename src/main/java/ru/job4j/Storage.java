@@ -1,7 +1,7 @@
 package ru.job4j;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * ru.job4j.test.storage
@@ -13,11 +13,11 @@ public class Storage {
     /**
      * Storage for Queue mode. String - theme name, Queue - storage of messages.
      */
-    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, LinkedBlockingQueue<String>> queue = new ConcurrentHashMap<>();
     /**
      * Storage for Topic mode. String - theme name, Queue - storage of messages.
      */
-    ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, LinkedBlockingQueue<String>> topic = new ConcurrentHashMap<>();
 
     /**
      * Method for debugging, print size of storage
@@ -25,7 +25,7 @@ public class Storage {
     public void size(String mode, String theme) {
         var map = getStorage(mode);
         if (map.size() > 0) {
-            System.out.printf("Size of map: %d, size of queue: %d", map.size(), map.get(theme).size());
+            System.out.printf("Size of map: %d, size of queue: %d\r\n", map.size(), map.get(theme).size());
         }
     }
     /**
@@ -33,7 +33,7 @@ public class Storage {
      * @param mode - mode Queue or Topic
      * @return - Map <String, ConcurrentLinkedQueue<String>>
      */
-    private ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> getStorage(String mode) {
+    private ConcurrentHashMap<String, LinkedBlockingQueue<String>> getStorage(String mode) {
         return "queue".equals(mode) ? queue : topic;
     }
     /**
@@ -43,8 +43,8 @@ public class Storage {
      */
     private void modeQueueFabric(String mode, String theme) {
         var map = getStorage(mode);
-        map.put(theme, new ConcurrentLinkedQueue<>());
-        System.out.printf("%s mode: Created new theme for %s", mode, theme);
+        map.put(theme, new LinkedBlockingQueue<>(5));
+        System.out.printf("%s mode: Created new theme for %s\r\n", mode, theme);
     }
     /**
      * Add message to corresponding queue

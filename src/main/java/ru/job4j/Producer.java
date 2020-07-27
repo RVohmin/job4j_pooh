@@ -18,7 +18,7 @@ public class Producer {
     }
 
     public void producer(String theme) {
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 25; i++) {
             pool.execute(
                     () -> {
                         var header = jsonParser.getJsonHeader(
@@ -50,7 +50,7 @@ public class Producer {
         var producer = new Producer("topic", jsonParser);
         producer.producer("weather");
         producer.producer("meet");
-//        producer.producer("hello");
+        producer.producer("hello");
         producer.close();
     }
 }
