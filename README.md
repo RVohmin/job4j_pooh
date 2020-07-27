@@ -15,17 +15,19 @@
 Пример запросов.
 
 POST /queue
+```
 {
   "queue" : "weather",
   "text" : "temperature +18 C"
 }
- 
+```
 GET /queue/weather
+```
 {
   "queue" : "weather",
   "text" : "temperature +18 C"
 }
-
+```
 #### Режим Topic.
 Отправитель посылает сообщение с указанием темы.
 Получатель читает первое сообщение и удаляет его из очереди.
